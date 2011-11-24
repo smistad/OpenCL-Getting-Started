@@ -12,7 +12,7 @@
 int main(void) {
     // Create the two input vectors
     int i;
-    const int LIST_SIZE = 1000;
+    const int LIST_SIZE = 1024;
     int *A = (int*)malloc(sizeof(int)*LIST_SIZE);
     int *B = (int*)malloc(sizeof(int)*LIST_SIZE);
     for(i = 0; i < LIST_SIZE; i++) {
@@ -80,7 +80,7 @@ int main(void) {
     
     // Execute the OpenCL kernel on the list
     size_t global_item_size = LIST_SIZE; // Process the entire lists
-    size_t local_item_size = 1; // Process one item at a time
+    size_t local_item_size = 64; // Process in groups of 64
     ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, 
             &global_item_size, &local_item_size, 0, NULL, NULL);
 
