@@ -67,8 +67,8 @@ int main(void) {
     cl_program program = clCreateProgramWithSource(context, 1, 
             (const char **)&source_str, (const size_t *)&source_size, &ret);
 
-    //if (! program) {
-    if (ret) {
+    //if (ret) {
+    if (! program) {
 	printf("not compilable or something\n");
 	exit(1);
     }
