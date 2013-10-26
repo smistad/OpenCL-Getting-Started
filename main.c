@@ -69,7 +69,7 @@ int main(void) {
 
     //if (! program) {
     if (ret) {
-	perror("not compilable or something");
+	printf("not compilable or something\n");
 	exit(1);
     }
 
