@@ -67,6 +67,12 @@ int main(void) {
     cl_program program = clCreateProgramWithSource(context, 1, 
             (const char **)&source_str, (const size_t *)&source_size, &ret);
 
+    //if (! program) {
+    if (ret) {
+	perror("not compilable or something");
+	exit(1);
+    }
+
     // Build the program
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
 
