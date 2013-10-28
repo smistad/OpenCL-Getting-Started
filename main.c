@@ -104,6 +104,7 @@ int main(void) {
 	CHECKRET ("clGetProgramBuildInfo",err0);
 	
 	printf("clBuildProgram error: (sizeused %i) '%s'\n", sizeused, val);
+	goto err10;
     }
 
     // Create the OpenCL kernel
