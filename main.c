@@ -49,7 +49,7 @@ int main(void) {
     cl_uint ret_num_platforms;
     cl_int exitcode= 0;
     cl_int ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-    CHECKRET ("clGetPlatformIDs",err10);
+    CHECKRET ("clGetPlatformIDs",err0);
     printf("platform_id=%i, ret_num_platforms=%i\n",platform_id, ret_num_platforms);
     ret = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 1, 
             &device_id, &ret_num_devices);
@@ -149,9 +149,10 @@ int main(void) {
     ret = clReleaseContext(context);
     CHECKRET ("clReleaseContext",err1);
  err1:
+    free(C);
+ err0:
     free(A);
     free(B);
-    free(C);
     return exitcode;
 }
 
