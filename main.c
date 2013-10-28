@@ -89,7 +89,7 @@ int main(void) {
 
     // Build the program
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
-    CHECKRET ("clBuildProgram",err10);
+    CHECKRET ("clBuildProgram",err0);
 
     // Create the OpenCL kernel
     cl_kernel kernel = clCreateKernel(program, "vector_add", &ret);
