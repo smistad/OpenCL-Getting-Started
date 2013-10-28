@@ -17,6 +17,9 @@
     }
 
 
+#define val_size 10000
+char val[val_size];
+
 int main(void) {
     // Create the two input vectors
     int i;
@@ -89,7 +92,19 @@ int main(void) {
 
     // Build the program
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
-    CHECKRET ("clBuildProgram",err0);
+    if (ret) {
+	cl_int ret0=ret;
+	int sizeused;
+	ret = clGetProgramBuildInfo (program,
+				     device_id,
+				     CL_PROGRAM_BUILD_LOG,
+				     val_size-1, //?
+				     &val,
+				     &sizeused);
+	CHECKRET ("clGetProgramBuildInfo",err0);
+	
+	printf("clBuildProgram error: (sizeused %i) '%s'\n", sizeused, val);
+    }
 
     // Create the OpenCL kernel
     cl_kernel kernel = clCreateKernel(program, "vector_add", &ret);
