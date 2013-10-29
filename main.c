@@ -117,8 +117,8 @@ int main(void) {
     cl_program program =
 	clCreateProgramWithSource(context,
 				  1,
-				  (const char **)&source_str,
-				  (const size_t *)&source_size,
+				  &source_str,
+				  &source_size,
 				  &ret);
     CHECKRET("clCreateProgramWithSource",err_clCreateProgramWithSource);
 
@@ -148,11 +148,11 @@ int main(void) {
     CHECKRET ("clCreateKernel",err_clCreateKernel);
 
     // Set the arguments of the kernel
-    ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&a_mem_obj);
+    ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), &a_mem_obj);
     CHECKRET ("clSetKernelArg",err_clSetKernelArg);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&b_mem_obj);
+    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), &b_mem_obj);
     CHECKRET ("clSetKernelArg",err_clSetKernelArg);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&c_mem_obj);
+    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), &c_mem_obj);
     CHECKRET ("clSetKernelArg",err_clSetKernelArg);
 
     // Execute the OpenCL kernel on the list
