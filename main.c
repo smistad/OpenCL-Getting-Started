@@ -95,7 +95,7 @@ int main(void) {
 					&source_size,
 					err_clCreateProgramWithSource);
 
-    free(source_str); //XXX ok, can we do that while program is still alive ?
+    free(source_str); //XXX can we do that while program is still alive ?
 
     // Build the program
     cl_int ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
@@ -183,6 +183,6 @@ int main(void) {
  err_malloc_B:
     free(A);
  err_malloc_A:
-    return CHECK_errors; //ok?
+    return CHECK_errors;
 }
 
