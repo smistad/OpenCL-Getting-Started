@@ -32,12 +32,12 @@
 
 /* and, CHECK_* for all OpenCL procedures */
 
-#define CHECKRET_(msg,exitlabel)				\
-    if (CHECK_ret) {						\
-	fprintf(stderr,"error: " msg " line %i: %s\n",		\
-		__LINE__, clGetErrorString(CHECK_ret));		\
-	inc_CHECK_errors();					\
-	goto exitlabel;						\
+#define CHECKRET_(callstr,exitlabel)					\
+    if (CHECK_ret) {							\
+	fprintf(stderr,"error: " callstr ": %s at '%s' line %i\n",	\
+		clGetErrorString(CHECK_ret), __FILE__, __LINE__);	\
+	inc_CHECK_errors();						\
+	goto exitlabel;							\
     }
 
 #define CHECK_clGetPlatformIDs(a,b,c,lbl)	\
