@@ -117,7 +117,7 @@ int main(void) {
     cl_program program =
 	clCreateProgramWithSource(context,
 				  1,
-				  &source_str,
+				  (const char**)&source_str,
 				  &source_size,
 				  &ret);
     CHECKRET("clCreateProgramWithSource",err_clCreateProgramWithSource);
