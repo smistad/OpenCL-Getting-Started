@@ -12,6 +12,7 @@
    a fresh CHECK_errors).
  */
 
+#include "opencl_errors.h"
 
 #define DECLARE_CHECK				\
     int CHECK_errors=0;				\
@@ -33,8 +34,8 @@
 
 #define CHECKRET_(msg,exitlabel)				\
     if (CHECK_ret) {						\
-	fprintf(stderr,"error: " msg " line %i: %i\n",		\
-		__LINE__, CHECK_ret);				\
+	fprintf(stderr,"error: " msg " line %i: %s\n",		\
+		__LINE__, clGetErrorString(CHECK_ret));		\
 	inc_CHECK_errors();					\
 	goto exitlabel;						\
     }
