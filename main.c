@@ -131,16 +131,10 @@ int main(void) {
     // Execute the OpenCL kernel on the list
     size_t global_item_size = LIST_SIZE; // Process the entire lists
     size_t local_item_size = 64; // Process in groups of 64
-    CHECK_clEnqueueNDRangeKernel(command_queue,
-				 kernel,
-				 1,
-				 NULL, 
-				 &global_item_size,
-				 &local_item_size,
-				 0,
-				 NULL,
-				 NULL,
-				 err_clEnqueueNDRangeKernel);
+    CHECK_clEnqueueNDRangeKernel
+	(command_queue, kernel, 1, NULL, 
+	 &global_item_size, &local_item_size, 0, NULL, NULL,
+	 err_clEnqueueNDRangeKernel);
 
     // Read the memory buffer C on the device to the local variable C
     int *C = CHECK_malloc(sizeof(int)*LIST_SIZE, err_malloc_C);
