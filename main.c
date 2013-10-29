@@ -11,8 +11,9 @@
 #define MAX_SOURCE_SIZE (0x100000)
 
 
-#define DEFINE_CHECK  \
-    int CHECK_errors=0; \
+#define DECLARE_CHECK				\
+    int CHECK_errors=0;				\
+    cl_int CHECK_ret;				\
     void *CHECK_malloc_tmp;
     
 
@@ -31,13 +32,80 @@
 	goto lbl;						\
     }
 
+/* and, CHECK_* for all OpenCL procedures?: */
+
+#define CHECKRET_(msg,exitlabel)				\
+    if (CHECK_ret) {						\
+	fprintf(stderr,"error: " msg " line %i: %i\n",		\
+		__LINE__, CHECK_ret);				\
+	CHECK_errors++;						\
+	goto exitlabel;						\
+    }
+
+#define CHECK_clGetPlatformIDs(a,b,c,lbl)	\
+    CHECK_ret = clGetPlatformIDs(a,b,c);	\
+    CHECKRET_("clGetPlatformIDs", lbl);
+#define CHECK_clGetDeviceIDs(a,b,c,d,e,lbl) \
+    CHECK_ret = clGetDeviceIDs(a,b,c,d,e);  \
+    CHECKRET_("clGetDeviceIDs", lbl);
+#define CHECK_clCreateContext(a,b,c,d,e,lbl) \
+    clCreateContext(a,b,c,d,e,&CHECK_ret);   \
+    CHECKRET_("clCreateContext", lbl);
+#define CHECK_clCreateCommandQueue(a,b,c,lbl)	\
+    clCreateCommandQueue(a,b,c,&CHECK_ret);	\
+    CHECKRET_("clCreateCommandQueue", lbl);
+#define CHECK_clCreateBuffer(a,b,c,d,lbl)	\
+    clCreateBuffer(a,b,c,d,&CHECK_ret);		\
+    CHECKRET_("clCreateBuffer", lbl);
+#define CHECK_clEnqueueWriteBuffer(a,b,c,d,e,f,g,h,i,lbl) \
+    CHECK_ret = clEnqueueWriteBuffer(a,b,c,d,e,f,g,h,i);  \
+    CHECKRET_("clEnqueueWriteBuffer", lbl);
+#define CHECK_clCreateProgramWithSource(a,b,c,d,lbl)	\
+    clCreateProgramWithSource(a,b,c,d,&CHECK_ret);	\
+    CHECKRET_("clCreateProgramWithSource", lbl);
+#define CHECK_clCreateKernel(a,b,lbl)  \
+    clCreateKernel(a,b,&CHECK_ret);    \
+    CHECKRET_("clCreateKernel", lbl);
+#define CHECK_clSetKernelArg(a,b,c,d,lbl) \
+    CHECK_ret= clSetKernelArg(a,b,c,d);	  \
+    CHECKRET_("clSetKernelArg", lbl);
+#define CHECK_clEnqueueNDRangeKernel(a,b,c,d,e,f,g,h,i,lbl)	\
+    CHECK_ret= clEnqueueNDRangeKernel(a,b,c,d,e,f,g,h,i);	\
+    CHECKRET_("clEnqueueNDRangeKernel", lbl);
+#define CHECK_clEnqueueReadBuffer(a,b,c,d,e,f,g,h,i,lbl)	\
+    CHECK_ret= clEnqueueReadBuffer(a,b,c,d,e,f,g,h,i);		\
+    CHECKRET_("clEnqueueReadBuffer", lbl);
+#define CHECK_clFlush(a,lbl)	\
+    CHECK_ret= clFlush(a);	\
+    CHECKRET_("clFlush", lbl);
+#define CHECK_clFinish(a,lbl)	\
+    CHECK_ret= clFinish(a);	\
+    CHECKRET_("clFinish", lbl);
+#define CHECK_clReleaseKernel(a,lbl)	\
+    CHECK_ret= clReleaseKernel(a);	\
+    CHECKRET_("clReleaseKernel", lbl);
+#define CHECK_clReleaseProgram(a,lbl)	\
+    CHECK_ret= clReleaseProgram(a);	\
+    CHECKRET_("clReleaseProgram", lbl);
+#define CHECK_clReleaseMemObject(a,lbl)		\
+    CHECK_ret= clReleaseMemObject(a);		\
+    CHECKRET_("clReleaseMemObject", lbl);
+#define CHECK_clReleaseCommandQueue(a,lbl)		\
+    CHECK_ret= clReleaseCommandQueue(a);		\
+    CHECKRET_("clReleaseCommandQueue", lbl);
+#define CHECK_clReleaseContext(a,lbl)		\
+    CHECK_ret= clReleaseContext(a);		\
+    CHECKRET_("clReleaseContext", lbl);
+
+/* /CHECK_* */
+
 
 
 #define val_size 10000
 char val[val_size];
 
 int main(void) {
-    DEFINE_CHECK;
+    DECLARE_CHECK;
     
     // Create the two input vectors
     int i;
@@ -66,66 +134,59 @@ int main(void) {
     cl_device_id device_id = NULL;   
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;
-    cl_int ret;
 
-    ret= clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-    CHECKRET ("clGetPlatformIDs",err_clGetPlatformIDs);
+    CHECK_clGetPlatformIDs(1, &platform_id, &ret_num_platforms,
+			   err_clGetPlatformIDs);
 
     printf("platform_id=%p, ret_num_platforms=%i\n",
 	   platform_id, ret_num_platforms);
 
-    ret = clGetDeviceIDs( platform_id,
+    CHECK_clGetDeviceIDs( platform_id,
 			  CL_DEVICE_TYPE_GPU,
 			  1,
 			  &device_id,
-			  &ret_num_devices);
-    CHECKRET ("clGetDeviceIDs",err_clGetDeviceIDs);
+			  &ret_num_devices,
+			  err_clGetDeviceIDs);
 
     // Create an OpenCL context
     cl_context context =
-	clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
-    CHECKRET ("clCreateContext",err_clCreateContext);
+	CHECK_clCreateContext( NULL, 1, &device_id, NULL, NULL, err_clCreateContext);
 
     // Create a command queue
     cl_command_queue command_queue =
-	clCreateCommandQueue(context, device_id, 0, &ret);
-    CHECKRET ("clCreateCommandQueue",err_clCreateCommandQueue);
+	CHECK_clCreateCommandQueue(context, device_id, 0, err_clCreateCommandQueue);
 
     // Create memory buffers on the device for each vector 
     cl_mem a_mem_obj =
-	clCreateBuffer(context, CL_MEM_READ_ONLY, 
-		       LIST_SIZE * sizeof(int), NULL, &ret);
-    CHECKRET ("clCreateBuffer",err_a_mem_obj);
+	CHECK_clCreateBuffer(context, CL_MEM_READ_ONLY, 
+			     LIST_SIZE * sizeof(int), NULL, err_a_mem_obj);
     cl_mem b_mem_obj =
-	clCreateBuffer(context, CL_MEM_READ_ONLY,
-		       LIST_SIZE * sizeof(int), NULL, &ret);
-    CHECKRET ("clCreateBuffer",err_b_mem_obj);
+	CHECK_clCreateBuffer(context, CL_MEM_READ_ONLY,
+			     LIST_SIZE * sizeof(int), NULL, err_b_mem_obj);
     cl_mem c_mem_obj =
-	clCreateBuffer(context, CL_MEM_WRITE_ONLY, 
-		       LIST_SIZE * sizeof(int), NULL, &ret);
-    CHECKRET ("clCreateBuffer",err_c_mem_obj);
+	CHECK_clCreateBuffer(context, CL_MEM_WRITE_ONLY, 
+			     LIST_SIZE * sizeof(int), NULL, err_c_mem_obj);
 
     // Copy the lists A and B to their respective memory buffers
-    ret = clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0,
-			       LIST_SIZE * sizeof(int), A, 0, NULL, NULL);
-    CHECKRET ("clEnqueueWriteBuffer",err_clEnqueueWriteBuffer_A);
-    ret = clEnqueueWriteBuffer(command_queue, b_mem_obj, CL_TRUE, 0, 
-			       LIST_SIZE * sizeof(int), B, 0, NULL, NULL);
-    CHECKRET ("clEnqueueWriteBuffer",err_clEnqueueWriteBuffer_B);
+    CHECK_clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0,
+			       LIST_SIZE * sizeof(int), A, 0, NULL, NULL,
+			       err_clEnqueueWriteBuffer_A);
+    CHECK_clEnqueueWriteBuffer(command_queue, b_mem_obj, CL_TRUE, 0, 
+			       LIST_SIZE * sizeof(int), B, 0, NULL, NULL,
+			       err_clEnqueueWriteBuffer_B);
 
     // Create a program from the kernel source
     cl_program program =
-	clCreateProgramWithSource(context,
-				  1,
-				  (const char**)&source_str,
-				  &source_size,
-				  &ret);
-    CHECKRET("clCreateProgramWithSource",err_clCreateProgramWithSource);
+	CHECK_clCreateProgramWithSource(context,
+					1,
+					(const char**)&source_str,
+					&source_size,
+					err_clCreateProgramWithSource);
 
     free(source_str); //XXX ok, can we do that while program is still alive ?
 
     // Build the program
-    ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+    cl_int ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
     if (ret) {
 	//cl_int ret0=ret; XX print it?
 	size_t sizeused;
@@ -144,21 +205,21 @@ int main(void) {
     }
 
     // Create the OpenCL kernel
-    cl_kernel kernel = clCreateKernel(program, "vector_add", &ret);
-    CHECKRET ("clCreateKernel",err_clCreateKernel);
+    cl_kernel kernel = CHECK_clCreateKernel(program, "vector_add",
+					    err_clCreateKernel);
 
     // Set the arguments of the kernel
-    ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), &a_mem_obj);
-    CHECKRET ("clSetKernelArg",err_clSetKernelArg);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), &b_mem_obj);
-    CHECKRET ("clSetKernelArg",err_clSetKernelArg);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), &c_mem_obj);
-    CHECKRET ("clSetKernelArg",err_clSetKernelArg);
+    CHECK_clSetKernelArg(kernel, 0, sizeof(cl_mem), &a_mem_obj,
+			 err_clSetKernelArg);
+    CHECK_clSetKernelArg(kernel, 1, sizeof(cl_mem), &b_mem_obj,
+			 err_clSetKernelArg);
+    CHECK_clSetKernelArg(kernel, 2, sizeof(cl_mem), &c_mem_obj,
+			 err_clSetKernelArg);
 
     // Execute the OpenCL kernel on the list
     size_t global_item_size = LIST_SIZE; // Process the entire lists
     size_t local_item_size = 64; // Process in groups of 64
-    ret = clEnqueueNDRangeKernel(command_queue,
+    CHECK_clEnqueueNDRangeKernel(command_queue,
 				 kernel,
 				 1,
 				 NULL, 
@@ -166,15 +227,15 @@ int main(void) {
 				 &local_item_size,
 				 0,
 				 NULL,
-				 NULL);
-    CHECKRET ("clEnqueueNDRangeKernel",err_clEnqueueNDRangeKernel);
+				 NULL,
+				 err_clEnqueueNDRangeKernel);
 
     // Read the memory buffer C on the device to the local variable C
     int *C = CHECK_malloc(sizeof(int)*LIST_SIZE, err_malloc_C);
 
-    ret = clEnqueueReadBuffer(command_queue, c_mem_obj, CL_TRUE, 0, 
-			      LIST_SIZE * sizeof(int), C, 0, NULL, NULL);
-    CHECKRET ("clEnqueueReadBuffer",err_clEnqueueReadBuffer);
+    CHECK_clEnqueueReadBuffer(command_queue, c_mem_obj, CL_TRUE, 0, 
+			      LIST_SIZE * sizeof(int), C, 0, NULL, NULL,
+			      err_clEnqueueReadBuffer);
 
     // Display the result to the screen
     for(i = 0; i < LIST_SIZE; i++)
@@ -183,36 +244,27 @@ int main(void) {
  err_clEnqueueReadBuffer:
     free(C);
  err_malloc_C:
-    ret = clFlush(command_queue);
-    CHECKRET ("clFlush",err_clFlush);
+    CHECK_clFlush(command_queue, err_clFlush);
  err_clFlush:
-    ret = clFinish(command_queue);
-    CHECKRET ("clFinish",err_clEnqueueNDRangeKernel);
+    CHECK_clFinish(command_queue, err_clEnqueueNDRangeKernel);
  err_clEnqueueNDRangeKernel:
  err_clSetKernelArg:
-    ret = clReleaseKernel(kernel);
-    CHECKRET ("clReleaseKernel",err_clCreateKernel);
+    CHECK_clReleaseKernel(kernel, err_clCreateKernel);
  err_clCreateKernel:
  err_clBuildProgram:
-    ret = clReleaseProgram(program);
-    CHECKRET ("clReleaseProgram",err_clCreateProgramWithSource);
+    CHECK_clReleaseProgram(program, err_clCreateProgramWithSource);
  err_clCreateProgramWithSource:
  err_clEnqueueWriteBuffer_B:
  err_clEnqueueWriteBuffer_A:
-    ret = clReleaseMemObject(c_mem_obj);
-    CHECKRET ("clReleaseMemObject",err_c_mem_obj);
+    CHECK_clReleaseMemObject(c_mem_obj, err_c_mem_obj);
  err_c_mem_obj:
-    ret = clReleaseMemObject(b_mem_obj);
-    CHECKRET ("clReleaseMemObject",err_b_mem_obj);
+    CHECK_clReleaseMemObject(b_mem_obj, err_b_mem_obj);
  err_b_mem_obj:
-    ret = clReleaseMemObject(a_mem_obj);
-    CHECKRET ("clReleaseMemObject",err_a_mem_obj);
+    CHECK_clReleaseMemObject(a_mem_obj, err_a_mem_obj);
  err_a_mem_obj:
-    ret = clReleaseCommandQueue(command_queue);
-    CHECKRET ("clReleaseCommandQueue",err_clCreateCommandQueue);
+    CHECK_clReleaseCommandQueue(command_queue, err_clCreateCommandQueue);
  err_clCreateCommandQueue:
-    ret = clReleaseContext(context);
-    CHECKRET ("clReleaseContext",err_clCreateContext);
+    CHECK_clReleaseContext(context, err_clCreateContext);
  err_clCreateContext:
     // XXX deallocate device_id ?
  err_clGetDeviceIDs:
