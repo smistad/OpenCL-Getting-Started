@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h> /* PRIuPTR and uintptr_t */
 
 #ifdef __APPLE__
 #include <OpenCL/opencl.h>
@@ -111,7 +112,7 @@ int main(void) {
 		    ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
 		    if (ret) {
 			//cl_int ret0=ret; XX print it?
-			int sizeused;
+			size_t sizeused;
 			ret = clGetProgramBuildInfo (program,
 						     device_id,
 						     CL_PROGRAM_BUILD_LOG,
@@ -120,7 +121,8 @@ int main(void) {
 						     &sizeused);
 			CHECKRET ("clGetProgramBuildInfo",err_clGetProgramBuildInfo);
 
-			printf("clBuildProgram error: (sizeused %i) '%s'\n", sizeused, val);
+			printf("clBuildProgram error: (sizeused %"PRIuPTR") '%s'\n",
+			       (uintptr_t) sizeused, val);
 		    err_clGetProgramBuildInfo:
 			goto err_clBuildProgram;
 		    }
