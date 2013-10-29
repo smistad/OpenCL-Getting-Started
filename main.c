@@ -15,19 +15,14 @@
     int CHECK_errors=0;				\
     cl_int CHECK_ret;				\
     void *CHECK_malloc_tmp;
-    
 
-#define CHECKRET(msg,exitlabel)					\
-    if (ret) {							\
-	fprintf(stderr,"error: " msg " line %i: %i\n", __LINE__, ret);	\
-	CHECK_errors++;						\
-	goto exitlabel;						\
-    }
+#define inc_CHECK_errors()			\
+    if (CHECK_errors < 64) CHECK_errors++;
 
 #define CHECK_malloc(siz,lbl)					\
     CHECK_malloc_tmp=malloc(siz);				\
     if (!CHECK_malloc_tmp) {					\
-	CHECK_errors++;						\
+	inc_CHECK_errors();					\
 	fprintf (stderr,"out of memory, line %i\n", __LINE__);	\
 	goto lbl;						\
     }
@@ -38,7 +33,7 @@
     if (CHECK_ret) {						\
 	fprintf(stderr,"error: " msg " line %i: %i\n",		\
 		__LINE__, CHECK_ret);				\
-	CHECK_errors++;						\
+	inc_CHECK_errors();					\
 	goto exitlabel;						\
     }
 
@@ -122,7 +117,7 @@ int main(void) {
     FILE *fp = fopen("vector_add_kernel.cl", "r");
     if (!fp) {
 	fprintf(stderr, "Failed to open kernel file.\n");
-	CHECK_errors++;
+	inc_CHECK_errors();
 	goto err_fopen;
     }
 
