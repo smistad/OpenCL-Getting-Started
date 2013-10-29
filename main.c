@@ -58,6 +58,10 @@
 #define CHECK_clCreateProgramWithSource(a,b,c,d,lbl)	\
     clCreateProgramWithSource(a,b,c,d,&CHECK_ret);	\
     CHECKRET_("clCreateProgramWithSource", lbl);
+#define CHECK_clGetProgramBuildInfo(a,b,c,d,e,f,lbl)	\
+    CHECK_ret= clGetProgramBuildInfo(a,b,c,d,e,f);	\
+    CHECKRET_("clGetProgramBuildInfo", lbl);
+
 #define CHECK_clCreateKernel(a,b,lbl)  \
     clCreateKernel(a,b,&CHECK_ret);    \
     CHECKRET_("clCreateKernel", lbl);
@@ -185,13 +189,13 @@ int main(void) {
     if (ret) {
 	//cl_int ret0=ret; XX print it?
 	size_t sizeused;
-	ret = clGetProgramBuildInfo (program,
+	CHECK_clGetProgramBuildInfo (program,
 				     device_id,
 				     CL_PROGRAM_BUILD_LOG,
 				     val_size-1, //?
 				     &val,
-				     &sizeused);
-	CHECKRET ("clGetProgramBuildInfo",err_clGetProgramBuildInfo);
+				     &sizeused,
+				     err_clGetProgramBuildInfo);
 
 	printf("clBuildProgram error: (sizeused %"PRIuPTR") '%s'\n",
 	       (uintptr_t) sizeused, val);
