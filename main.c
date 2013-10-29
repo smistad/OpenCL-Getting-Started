@@ -8,6 +8,7 @@
 #include <CL/cl.h>
 #endif
 
+/* see check_opencl.h for docs on the CHECK_* macros */
 #include "check_opencl.h"
 
 #define MAX_SOURCE_SIZE (0x100000)

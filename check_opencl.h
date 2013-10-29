@@ -1,6 +1,18 @@
 #ifndef _CHECK_OPENCL_H
 #define _CHECK_OPENCL_H
 
+
+/* Wrapper macros that check for errors on the OpenCL (and malloc)
+   calls, and print error messages and increment a local error count
+   variable called CHECK_errors if so. The macros all take as last
+   argument the name of a label that the code will jump to if an error
+   happens. The macros handle error code extraction themselves, you
+   don't need to pass &ret. DECLARE_CHECK needs to be put at the start
+   of the scope where CHECK_* macros are to be used (this defines
+   a fresh CHECK_errors).
+ */
+
+
 #define DECLARE_CHECK				\
     int CHECK_errors=0;				\
     cl_int CHECK_ret;				\
