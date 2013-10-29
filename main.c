@@ -51,8 +51,7 @@ int main(void) {
     CHECK_clGetPlatformIDs(1, &platform_id, &ret_num_platforms,
 			   err_clGetPlatformIDs);
 
-    printf("platform_id=%p, ret_num_platforms=%i\n",
-	   platform_id, ret_num_platforms);
+    fprintf(stderr, "ret_num_platforms=%i\n", ret_num_platforms);
 
     CHECK_clGetDeviceIDs( platform_id,
 			  CL_DEVICE_TYPE_GPU,
