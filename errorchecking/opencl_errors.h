@@ -58,7 +58,7 @@ static const char* clErrorString[] = {
     "CL_INVALID_PROPERTY"
 };
 
-inline const char* clGetErrorString(cl_int errorCode) {
+static inline const char* clGetErrorString(cl_int errorCode) {
     static const char* INVALIDERROR = "INVALID_ERROR_CODE";
     int errorNumber = (errorCode < 0) ? -errorCode : errorCode;
     if (errorCode == -1000) return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
