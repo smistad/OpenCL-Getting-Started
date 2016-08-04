@@ -2,7 +2,7 @@ OpenCL-Getting-Started
 ======================
 
 A small "getting started" tutorial for OpenCL. See
-http://www.thebigblob.com/getting-started-with-opencl-and-gpu-computing/
+http://www.eriksmistad.no/getting-started-with-opencl-and-gpu-computing/
 for more info.
 
 For simplicity, the main.c in this directory does not check for
